@@ -35,9 +35,13 @@ parser.add_argument('--embedding_dim', type=int, default=100, help='Dimension of
 parser.add_argument('--num_epochs', type=int, default=2000, help='Number of Epochs')
 parser.add_argument('--alpha', type=int, default=0.75, help='GloVe model parameter')
 parser.add_argument('--xmax', type=int, default=50, help='GloVe model parameter')
+parser.add_argument('--disable-cuda', action='store_true', help='Disable CUDA')
 parser.add_argument('--numpy_random_seed', type=int, default=1234, help='Random Seed when minibatch < len(data)')
 opt = parser.parse_args()
 print(opt)
+
+# Just as: http://pytorch.org/docs/master/notes/cuda.html
+opt.cuda = not opt.disable_cuda and torch.cuda.is_available()
 
 ######## Part I : Data I/O ########
     
@@ -190,6 +194,9 @@ def training_loop(training_set, batch_size, num_epochs, model, optim, data_iter,
     epoch = 0
     losses = []
     total_batches = int(len(training_set) / batch_size)
+    
+    if opt.cuda:
+        model = model.cuda()
         
     while epoch <= num_epochs:
         model.train()
@@ -197,12 +204,17 @@ def training_loop(training_set, batch_size, num_epochs, model, optim, data_iter,
         words_var = Variable(torch.LongTensor(words))
         co_words_var = Variable(torch.LongTensor(co_words))
         
+        if opt.cuda:
+            words_var = words_var.cuda()
+            co_words_var = co_words_var.cuda()
+        
         model.zero_grad()
 
         wi, wj, bi, bj = model(words_var, co_words_var)
         counts_var = Variable(torch.FloatTensor([counts]))
         counts_fx = [1 if x >= xmax else (x/xmax)**alpha for x in counts]
         counts_fx_var = Variable(torch.FloatTensor([counts_fx]))
+            
         loss = sum(torch.t(torch.mul((torch.mm(wi, torch.t(wj)).diag() + bi + bj - torch.log(counts_var))**2, counts_fx_var)))
                 
         losses.append(loss.data[0])
