@@ -5,12 +5,12 @@ import re
 import collections
 import numpy as np
 import random
-from sklearn.metrics.pairwise import cosine_similarity
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
 import torch.nn.functional as F
 import nltk.tokenize
+import pickle
 
 """
 Created on Sun Nov  5 13:03:11 2017
@@ -29,8 +29,9 @@ parser.add_argument('--batchSize', type=int, default=1024, help='input batch siz
 parser.add_argument('--main_data_dir', type=str, default='/scratch/eff254/Optimization/Data/', help='input batch size')
 parser.add_argument('--minibatch', type=int, default=400, help='Minibatch (examples to take) for tryouts.')
 parser.add_argument('--context_window', type=int, default=5, help='Context Window for Glove Vectors')
-parser.add_argument('--top_k', type=int, default=5, help='Vocabulary Size (Top words form)')
+parser.add_argument('--top_k', type=int, default=500, help='Vocabulary Size (Top words form)')
 parser.add_argument('--learning_rate', type=int, default=1, help='Learning Rate for SGD step on Glove')
+parser.add_argument('--embedding_dim', type=int, default=100, help='Dimension of each embedding vector')
 parser.add_argument('--num_epochs', type=int, default=2000, help='Number of Epochs')
 parser.add_argument('--alpha', type=int, default=0.75, help='GloVe model parameter')
 parser.add_argument('--xmax', type=int, default=50, help='GloVe model parameter')
@@ -81,8 +82,9 @@ def tokenize(string):
     string = string.lower()
     return string.split()
 
-def extract_cooccurrences(dataset, word_map, amount_of_context=opt.context_window):
-    num_words = len(vocabulary)
+def extract_cooccurrences(dataset, word_map, word_to_index_map, amount_of_context=opt.context_window):
+    print("Building cooccurrences matrix ...")    
+    num_words = len(word_map)
     cooccurrences = np.zeros((num_words, num_words))
     nonzero_pairs = set()
     for example in dataset:
@@ -182,7 +184,8 @@ class Glove(nn.Module):
         
 ######## Part VI: Training Loop ######## 
 
-def training_loop(training_set, batch_size, num_epochs, model, optim, data_iter, xmax, alpha):
+def training_loop(training_set, batch_size, num_epochs, model, optim, data_iter, xmax, alpha, optimizer):
+    print("Training Model...")    
     step = 0
     epoch = 0
     losses = []
@@ -209,7 +212,6 @@ def training_loop(training_set, batch_size, num_epochs, model, optim, data_iter,
         if step % total_batches == 0:
             epoch += 1
             if epoch % 25 == 0:
-                word_emebddings = model.add_embeddings()
                 print( "Epoch:", (epoch),"/", (num_epochs) , "Avg Loss:", np.mean(losses)/(total_batches*epoch))
         
         step += 1
@@ -218,26 +220,36 @@ def training_loop(training_set, batch_size, num_epochs, model, optim, data_iter,
         
 
 def main():        
-    train_examples = np.loadtxt(main_data_dir + "/train.txt", dtype="str")
-    if minibatch < len(train_examples):
-        np.random.seed(numpy_random_seed)
-        train_examples = np.random.choice(train_examples, minibatch)
+    train_examples = np.loadtxt(opt.main_data_dir + "/train.txt", dtype="str")
+    if opt.minibatch < len(train_examples):
+        np.random.seed(opt.numpy_random_seed)
+        train_examples = np.random.choice(train_examples, opt.minibatch)
         
     corpus_sentences = loadCorpus(train_examples)    
 
     word_counter = collections.Counter()
     for example in corpus_sentences:
         word_counter.update(tokenize(example))
-    vocabulary = [pair[0] for pair in word_counter.most_common()[0:top_k]]
+    vocabulary = [pair[0] for pair in word_counter.most_common()[0:opt.top_k]]
     index_to_word_map = dict(enumerate(vocabulary))
     word_to_index_map = dict([(index_to_word_map[index], index) for index in index_to_word_map])
 
-    cooccurrences, nonzero_pairs = extract_cooccurrences(corpus_sentences, vocabulary)
+    cooccurrences, nonzero_pairs = extract_cooccurrences(corpus_sentences, vocabulary, word_to_index_map)
     vocab_size = len(vocabulary)
         
-    glove = Glove(embedding_dim, vocab_size, batch_size)
+    glove = Glove(opt.embedding_dim, vocab_size, opt.batchSize)
     glove.init_weights()
-    optimizer = torch.optim.Adadelta(glove.parameters(), lr=learning_rate)
-    data_iter = batch_iter(nonzero_pairs, cooccurrences, batch_size)
-
-    training_loop(corpus_sentences, batch_size, num_epochs, glove, optimizer, data_iter, xmax, alpha)
+    optimizer = torch.optim.Adadelta(glove.parameters(), lr=opt.learning_rate)
+    data_iter = batch_iter(nonzero_pairs, cooccurrences, opt.batchSize)
+    
+    training_loop(corpus_sentences, opt.batchSize, opt.num_epochs, glove, optimizer, data_iter, opt.xmax, opt.alpha, optimizer)
+    
+    word_emebddings = Glove.add_embeddings()
+    
+    pickle.dump(word_emebddings, open(opt.main_data_dir + "GloVe.p", "wb" ) ) 
+    pickle.dump(word_to_index_map, open(opt.main_data_dir + "word_to_index_map.p", "wb" ) ) 
+    pickle.dump(index_to_word_map, open(opt.main_data_dir + "index_to_word_map.p", "wb" ) ) 
+    
+if __name__ == "__main__" :
+    main()
+        
