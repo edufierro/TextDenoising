@@ -1,0 +1,24 @@
+/share/apps/python3/3.5.3/intel/lib/python3.5/runpy.py:125: RuntimeWarning: 'nltk.downloader' found in sys.modules after import of package 'nltk', but prior to execution of 'nltk.downloader'; this may result in unpredictable behaviour
+  warn(RuntimeWarning(msg))
+Traceback (most recent call last):
+  File "GloVe.py", line 266, in <module>
+    main()
+  File "GloVe.py", line 257, in main
+    training_loop(corpus_sentences, opt.batchSize, opt.num_epochs, glove, optimizer, data_iter, opt.xmax, opt.alpha, optimizer)
+  File "GloVe.py", line 218, in training_loop
+    loss = sum(torch.t(torch.mul((torch.mm(wi, torch.t(wj)).diag() + bi + bj - torch.log(counts_var))**2, counts_fx_var)))
+  File "/home/eff254/.local/lib/python3.5/site-packages/torch/autograd/variable.py", line 820, in __sub__
+    return self.sub(other)
+  File "/home/eff254/.local/lib/python3.5/site-packages/torch/autograd/variable.py", line 332, in sub
+    return self._sub(other, False)
+  File "/home/eff254/.local/lib/python3.5/site-packages/torch/autograd/variable.py", line 326, in _sub
+    return Sub.apply(self, other, inplace)
+  File "/home/eff254/.local/lib/python3.5/site-packages/torch/autograd/_functions/basic_ops.py", line 34, in forward
+    return a.sub(b)
+TypeError: sub received an invalid combination of arguments - got (torch.FloatTensor), but expected one of:
+ * (float value)
+      didn't match because some of the arguments have invalid types: (!torch.FloatTensor!)
+ * (torch.cuda.FloatTensor other)
+      didn't match because some of the arguments have invalid types: (!torch.FloatTensor!)
+ * (float value, torch.cuda.FloatTensor other)
+
