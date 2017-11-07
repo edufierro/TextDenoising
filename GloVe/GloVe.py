@@ -212,8 +212,13 @@ def training_loop(training_set, batch_size, num_epochs, model, optim, data_iter,
 
         wi, wj, bi, bj = model(words_var, co_words_var)
         counts_var = Variable(torch.FloatTensor([counts]))
+        
         counts_fx = [1 if x >= xmax else (x/xmax)**alpha for x in counts]
         counts_fx_var = Variable(torch.FloatTensor([counts_fx]))
+        
+        if opt.cuda:
+            counts_var = counts_var.cuda()
+            counts_fx_var = counts_fx_var.cuda()
             
         loss = sum(torch.t(torch.mul((torch.mm(wi, torch.t(wj)).diag() + bi + bj - torch.log(counts_var))**2, counts_fx_var)))
                 
