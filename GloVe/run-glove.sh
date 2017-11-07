@@ -9,7 +9,7 @@
 
 module purge
 module load python3/intel/3.5.3
-python3 -m pip install http://download.pytorch.org/whl/cu80/torch-0.2.0.post3-cp35-cp35m-manylinux1_x86_64.whl --user --upgrade
-python3 -m pip install torchvision --user --upgrade
+module load nltk/python3.5/3.2.4
 
-python3 -u GloVe.py --embedding_dim 200 --top_k 10000 --minibatch 10000  --main_data_dir "/scratch/eff254/Optimization/Data/TXTsOriginal/"
+python3 -m nltk.downloader all
+python3 -u GloVe.py --embedding_dim 300 --top_k 10000 --minibatch 10000  --main_data_dir "/scratch/eff254/Optimization/Data/"
