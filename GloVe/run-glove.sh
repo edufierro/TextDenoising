@@ -2,8 +2,8 @@
 #
 #SBATCH --job-name=charrrr
 #SBATCH --gres=gpu:1
-#SBATCH --time=23:00:00
-#SBATCH --mem=40GB
+#SBATCH --time=30:00:00
+#SBATCH --mem=80GB
 #SBATCH --output=outputs/%A.out
 #SBATCH --error=outputs/%A.err
 

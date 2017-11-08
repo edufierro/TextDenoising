@@ -231,6 +231,12 @@ def training_loop(training_set, batch_size, num_epochs, model, optim, data_iter,
             if epoch % 25 == 0:
                 print( "Epoch:", (epoch),"/", (num_epochs) , "Avg Loss:", np.mean(losses)/(total_batches*epoch))
         
+        if step % total_batches == 0:
+            if epoch % 100 == 0:
+                pickle.dump(word_emebddings, open(opt.main_data_dir + "GloVe.p", "wb" ) )
+                pickle.dump(word_to_index_map, open(opt.main_data_dir + "word_to_index_map.p", "wb" ) )
+                pickle.dump(word_to_index_map, open(opt.main_data_dir + "index_to_word_map.p", "wb" ) )
+
         step += 1
         
 ######## Part VII: Train ######## 
@@ -263,9 +269,9 @@ def main():
     
     word_emebddings = Glove.add_embeddings()
     
-    pickle.dump(word_emebddings, open(opt.main_data_dir + "GloVe.p", "wb" ) ) 
-    pickle.dump(word_to_index_map, open(opt.main_data_dir + "word_to_index_map.p", "wb" ) ) 
-    pickle.dump(index_to_word_map, open(opt.main_data_dir + "index_to_word_map.p", "wb" ) ) 
+    pickle.dump(word_emebddings, open(opt.main_data_dir + "GloVe_final.p", "wb" ) ) 
+    pickle.dump(word_to_index_map, open(opt.main_data_dir + "word_to_index_map_final.p", "wb" ) ) 
+    pickle.dump(index_to_word_map, open(opt.main_data_dir + "index_to_word_map_final.p", "wb" ) ) 
     
 if __name__ == "__main__" :
     main()
