@@ -249,8 +249,6 @@ def training_loop(training_set, batch_size, num_epochs, model, optim, data_iter,
                 
                 word_emebddings = model.get_matrix()
                 pickle.dump(word_emebddings, open(opt.main_data_dir + "GloVe.p", "wb" ) )
-                pickle.dump(word_to_index_map, open(opt.main_data_dir + "word_to_index_map.p", "wb" ) )
-                pickle.dump(word_to_index_map, open(opt.main_data_dir + "index_to_word_map.p", "wb" ) )
 
         step += 1
         
@@ -271,7 +269,10 @@ def main():
     vocabulary = [pair[0] for pair in word_counter.most_common()[0:opt.top_k]]
     index_to_word_map = dict(enumerate(vocabulary))
     word_to_index_map = dict([(index_to_word_map[index], index) for index in index_to_word_map])
-
+    
+    pickle.dump(word_to_index_map, open(opt.main_data_dir + "word_to_index_map.p", "wb" ) )      
+    pickle.dump(index_to_word_map, open(opt.main_data_dir + "index_to_word_map.p", "wb" ) )   
+    
     cooccurrences, nonzero_pairs = extract_cooccurrences(corpus_sentences, vocabulary, word_to_index_map)
     vocab_size = len(vocabulary)
         
@@ -285,9 +286,6 @@ def main():
     word_emebddings = glove.get_matrix()
     
     pickle.dump(word_emebddings, open(opt.main_data_dir + "GloVe_final.p", "wb" ) ) 
-    pickle.dump(word_to_index_map, open(opt.main_data_dir + "word_to_index_map_final.p", "wb" ) ) 
-    pickle.dump(index_to_word_map, open(opt.main_data_dir + "index_to_word_map_final.p", "wb" ) ) 
     
 if __name__ == "__main__" :
     main()
-        
