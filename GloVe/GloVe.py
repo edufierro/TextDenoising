@@ -182,9 +182,22 @@ class Glove(nn.Module):
     
     def get_embeddings(self, index):
         if self.word_embeddings is None:
-            add_embeddings()
+            self.add_embeddings()
+        
+        if opt.cuda:
+            return self.word_embeddings.data[index, :].cpu().numpy()
+        else:
+            return self.word_embeddings.data[index, :].numpy()
 
-        return self.word_embeddings.data[index, :].numpy()
+    # Extra piece of code, to get whole matrix
+    def get_matrix(self): 
+        if self.word_embeddings is None:
+            self.add_embeddings()
+        
+        if opt.cuda: 
+            return self.word_embeddings.data.cpu().numpy()
+        else:
+            return self.word_embeddings.data.numpy()
         
 ######## Part VI: Training Loop ######## 
 
@@ -233,6 +246,8 @@ def training_loop(training_set, batch_size, num_epochs, model, optim, data_iter,
         
         if step % total_batches == 0:
             if epoch % 100 == 0:
+                
+                word_emebddings = model.get_matrix()
                 pickle.dump(word_emebddings, open(opt.main_data_dir + "GloVe.p", "wb" ) )
                 pickle.dump(word_to_index_map, open(opt.main_data_dir + "word_to_index_map.p", "wb" ) )
                 pickle.dump(word_to_index_map, open(opt.main_data_dir + "index_to_word_map.p", "wb" ) )
@@ -267,7 +282,7 @@ def main():
     
     training_loop(corpus_sentences, opt.batchSize, opt.num_epochs, glove, optimizer, data_iter, opt.xmax, opt.alpha, optimizer)
     
-    word_emebddings = Glove.add_embeddings()
+    word_emebddings = glove.get_matrix()
     
     pickle.dump(word_emebddings, open(opt.main_data_dir + "GloVe_final.p", "wb" ) ) 
     pickle.dump(word_to_index_map, open(opt.main_data_dir + "word_to_index_map_final.p", "wb" ) ) 
