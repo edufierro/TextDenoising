@@ -1,0 +1,123 @@
+Namespace(alpha=0.75, batchSize=1024, context_window=5, disable_cuda=False, embedding_dim=300, learning_rate=1, main_data_dir='/scratch/eff254/Optimization/Data/', minibatch=10000, num_epochs=2000, numpy_random_seed=1234, top_k=10000, xmax=50)
+Building Corpus...
+0/4150 advance
+100/4150 advance
+200/4150 advance
+300/4150 advance
+400/4150 advance
+500/4150 advance
+600/4150 advance
+700/4150 advance
+800/4150 advance
+900/4150 advance
+1000/4150 advance
+1100/4150 advance
+1200/4150 advance
+1300/4150 advance
+1400/4150 advance
+1500/4150 advance
+1600/4150 advance
+1700/4150 advance
+1800/4150 advance
+1900/4150 advance
+2000/4150 advance
+2100/4150 advance
+2200/4150 advance
+2300/4150 advance
+2400/4150 advance
+2500/4150 advance
+2600/4150 advance
+2700/4150 advance
+2800/4150 advance
+2900/4150 advance
+3000/4150 advance
+3100/4150 advance
+3200/4150 advance
+3300/4150 advance
+3400/4150 advance
+3500/4150 advance
+3600/4150 advance
+3700/4150 advance
+3800/4150 advance
+3900/4150 advance
+4000/4150 advance
+4100/4150 advance
+Corpus Ready!!
+Building cooccurrences matrix ...
+Training Model...
+Epoch: 25 / 2000 Avg Loss: 0.0290346108222
+Epoch: 50 / 2000 Avg Loss: 0.010254737081
+Epoch: 75 / 2000 Avg Loss: 0.00558866053203
+Epoch: 100 / 2000 Avg Loss: 0.00361270880073
+Epoch: 125 / 2000 Avg Loss: 0.00257000828969
+Epoch: 150 / 2000 Avg Loss: 0.00194856787391
+Epoch: 175 / 2000 Avg Loss: 0.0015427669013
+Epoch: 200 / 2000 Avg Loss: 0.00125760136973
+Epoch: 225 / 2000 Avg Loss: 0.00105221833801
+Epoch: 250 / 2000 Avg Loss: 0.000898367752602
+Epoch: 275 / 2000 Avg Loss: 0.000777423681715
+Epoch: 300 / 2000 Avg Loss: 0.000682232320615
+Epoch: 325 / 2000 Avg Loss: 0.000605827828198
+Epoch: 350 / 2000 Avg Loss: 0.000542501583378
+Epoch: 375 / 2000 Avg Loss: 0.000489634509502
+Epoch: 400 / 2000 Avg Loss: 0.000445414722614
+Epoch: 425 / 2000 Avg Loss: 0.000407651197333
+Epoch: 450 / 2000 Avg Loss: 0.0003748087302
+Epoch: 475 / 2000 Avg Loss: 0.000346583979889
+Epoch: 500 / 2000 Avg Loss: 0.000322024072722
+Epoch: 525 / 2000 Avg Loss: 0.00030003077073
+Epoch: 550 / 2000 Avg Loss: 0.000280698617146
+Epoch: 575 / 2000 Avg Loss: 0.000263613061434
+Epoch: 600 / 2000 Avg Loss: 0.000248153750155
+Epoch: 625 / 2000 Avg Loss: 0.000234231013486
+Epoch: 650 / 2000 Avg Loss: 0.000221757659884
+Epoch: 675 / 2000 Avg Loss: 0.00021041976201
+Epoch: 700 / 2000 Avg Loss: 0.000199999530983
+Epoch: 725 / 2000 Avg Loss: 0.000190562040691
+Epoch: 750 / 2000 Avg Loss: 0.000181965772995
+Epoch: 775 / 2000 Avg Loss: 0.000173907947599
+Epoch: 800 / 2000 Avg Loss: 0.000166542590819
+Epoch: 825 / 2000 Avg Loss: 0.000159792538491
+Epoch: 850 / 2000 Avg Loss: 0.000153450914322
+Epoch: 875 / 2000 Avg Loss: 0.000147577955708
+Epoch: 900 / 2000 Avg Loss: 0.000142149852805
+Epoch: 925 / 2000 Avg Loss: 0.000137067644453
+Epoch: 950 / 2000 Avg Loss: 0.000132274789919
+Epoch: 975 / 2000 Avg Loss: 0.000127826760335
+Epoch: 1000 / 2000 Avg Loss: 0.000123680907024
+Epoch: 1025 / 2000 Avg Loss: 0.000119705060043
+Epoch: 1050 / 2000 Avg Loss: 0.000116005327078
+Epoch: 1075 / 2000 Avg Loss: 0.000112542579352
+Epoch: 1100 / 2000 Avg Loss: 0.000109227347122
+Epoch: 1125 / 2000 Avg Loss: 0.000106105720407
+Epoch: 1150 / 2000 Avg Loss: 0.000103171295826
+Epoch: 1175 / 2000 Avg Loss: 0.000100375195928
+Epoch: 1200 / 2000 Avg Loss: 9.77059557037e-05
+Epoch: 1225 / 2000 Avg Loss: 9.51897343764e-05
+Epoch: 1250 / 2000 Avg Loss: 9.2809162124e-05
+Epoch: 1275 / 2000 Avg Loss: 9.04991164295e-05
+Epoch: 1300 / 2000 Avg Loss: 8.83197430428e-05
+Epoch: 1325 / 2000 Avg Loss: 8.62591624824e-05
+Epoch: 1350 / 2000 Avg Loss: 8.42554805952e-05
+Epoch: 1375 / 2000 Avg Loss: 8.23524405722e-05
+Epoch: 1400 / 2000 Avg Loss: 8.05474938974e-05
+Epoch: 1425 / 2000 Avg Loss: 7.88047141846e-05
+Epoch: 1450 / 2000 Avg Loss: 7.71257584365e-05
+Epoch: 1475 / 2000 Avg Loss: 7.55318101515e-05
+Epoch: 1500 / 2000 Avg Loss: 7.40019209294e-05
+Epoch: 1525 / 2000 Avg Loss: 7.25086149652e-05
+Epoch: 1550 / 2000 Avg Loss: 7.10910887719e-05
+Epoch: 1575 / 2000 Avg Loss: 6.97365055896e-05
+Epoch: 1600 / 2000 Avg Loss: 6.84084197772e-05
+Epoch: 1625 / 2000 Avg Loss: 6.71378282323e-05
+Epoch: 1650 / 2000 Avg Loss: 6.59265981999e-05
+Epoch: 1675 / 2000 Avg Loss: 6.47468890781e-05
+Epoch: 1700 / 2000 Avg Loss: 6.36032534865e-05
+Epoch: 1725 / 2000 Avg Loss: 6.25100986213e-05
+Epoch: 1750 / 2000 Avg Loss: 6.1454035543e-05
+Epoch: 1775 / 2000 Avg Loss: 6.04177031425e-05
+Epoch: 1800 / 2000 Avg Loss: 5.94263000785e-05
+Epoch: 1825 / 2000 Avg Loss: 5.84753941152e-05
+Epoch: 1850 / 2000 Avg Loss: 5.75350712395e-05
+Epoch: 1875 / 2000 Avg Loss: 5.66320196025e-05
+Epoch: 1900 / 2000 Avg Loss: 5.57666546403e-05
