@@ -11,6 +11,7 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 import nltk.tokenize
 import pickle
+from itertools import compress
 
 """
 Created on Sun Nov  5 13:03:11 2017
@@ -27,7 +28,8 @@ Code based on NLP: Homewwork 1
 parser = argparse.ArgumentParser()
 parser.add_argument('--batchSize', type=int, default=1024, help='input batch size')
 parser.add_argument('--main_data_dir', type=str, default='/scratch/eff254/Optimization/Data/', help='input batch size')
-parser.add_argument('--minibatch', type=int, default=400, help='Minibatch (examples to take) for tryouts.')
+parser.add_argument('--enable_minibatch', action='store_true', help='Enables minibatch to the size of --minibatch')
+parser.add_argument('--minibatch', type=int, default=400, help='Minibatch (examples to take) for tryouts. Works only if --enable_minibatch')
 parser.add_argument('--context_window', type=int, default=5, help='Context Window for Glove Vectors')
 parser.add_argument('--top_k', type=int, default=500, help='Vocabulary Size (Top words form)')
 parser.add_argument('--learning_rate', type=float, default=1, help='Learning Rate for SGD step on Glove')
@@ -37,6 +39,7 @@ parser.add_argument('--alpha', type=float, default=0.75, help='GloVe model param
 parser.add_argument('--xmax', type=int, default=50, help='GloVe model parameter')
 parser.add_argument('--disable-cuda', action='store_true', help='Disable CUDA')
 parser.add_argument('--numpy_random_seed', type=int, default=1234, help='Random Seed when minibatch < len(data)')
+parser.add_argument('--min_value', type=int, default=7, help='Min Length of sentences. 99 or more = No trimming. Default=7')
 opt = parser.parse_args()
 print(opt)
 
@@ -78,8 +81,14 @@ def loadCorpus(listFiles):
             print("{}/{} advance".format(i, len(listFiles)))
     
     print("Corpus Ready!!")    
-    return(all_sentences)    
-
+    return(all_sentences)   
+    
+def trim_corpus(corpus, min_len):
+    
+    mask = [len(line.split(' ')) >= min_len for line in corpus]
+    corpus = list(compress(corpus, mask)) 
+    
+    return (corpus) 
 
 ######## Part II : Coocurrance Matrix ########
 
@@ -258,11 +267,15 @@ def training_loop(training_set, batch_size, num_epochs, model, optim, data_iter,
 
 def main():        
     train_examples = np.loadtxt(opt.main_data_dir + "/train.txt", dtype="str")
-    if opt.minibatch < len(train_examples):
+
+    if opt.enable_minibatch:
         np.random.seed(opt.numpy_random_seed)
         train_examples = np.random.choice(train_examples, opt.minibatch)
         
-    corpus_sentences = loadCorpus(train_examples)    
+    corpus_sentences = loadCorpus(train_examples)
+    
+    if opt.min_value<99: 
+         corpus_sentences = trim_corpus(corpus_sentences, opt.min_value)   
 
     word_counter = collections.Counter()
     for example in corpus_sentences:
