@@ -15,7 +15,7 @@ Generates 3 text files with file names in of test, train and valid
 
 ##### File params ##### 
 
-data_dir = "/Users/eduardofierro/Google Drive/TercerSemetre/Optimization/Project/Data"
+data_dir = "/scratch/eff254/Optimization/Data/TXTsOriginal/"
 save_dir = data_dir
 train = 70 # Means N%. Ie 70 = 70%
 valid = 15 # Means N%. Ie 70 = 70%
