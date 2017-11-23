@@ -40,4 +40,8 @@ Thumbs.db
 ##########
 .ipynb_checkpoints
 
+# Chache #
+##########
 
+# Anaconda Spider Files
+__pycache__
