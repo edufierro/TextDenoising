@@ -158,3 +158,6 @@ if __name__ == '__main__':
         print("Topic {} - Acc on validation: {}".format(topics[x], acc_valid))
         print("Topic {} - AUC on train: {}".format(topics[x], auc_train))
         print("Topic {} - AUC on validation: {}".format(topics[x], auc_valid))
+
+
+        
