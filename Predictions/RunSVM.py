@@ -9,6 +9,8 @@ from CorpusLoder import loadCorpus
 from GetTargets import readTable, getTemaFromList, genTarget
 from BuildDenseRep import load_gloves, gloveCorpus
 from BuildSparseRep import load_sparse, sparseCorpus
+from DenoiseChenEtAl import ALM_RoMaCo
+
 
 """
 Created on Tue Nov 21 17:01:27 2017
@@ -26,6 +28,8 @@ parser.add_argument('--file_type', type=str, default="gloves", help='gloves := G
 parser.add_argument('--list_topics', type=str, default="['Educación', 'Campo', 'Sistema Financiero', 'Electoral', 'Derechos Humanos', 'Medio Ambiente', 'Laboral']", help='A list of topics to chose from, as string')
 parser.add_argument('--SVM_hyperparam', type=float, default=0.001, help='SVM hyperparam (for all topics)')
 parser.add_argument('--SVM_kernel', type=str, default="linear", help="SVM kernel. Default = linear; Must be ‘linear’, ‘poly’, ‘rbf’, ‘sigmoid’, ‘precomputed’ or a callable ")
+parser.add_argument('--vocab_size', type=int, default=10000, help="Vocabulary size to use for classification task")
+parser.add_argument('--denoise', type=str, default='None', help="Denoising techique to use - Accepted: None; ChetEtAl")
 opt = parser.parse_args()
 print(opt)
 
@@ -46,6 +50,11 @@ def buildFeatures(data_dir = opt.main_data_dir, min_val = opt.min_value, file_ty
 
         subdir = "GloVe"
         glove, index_to_word_map, word_to_index_map = load_gloves(data_dir, subdir)
+        
+        glove = glove[0:opt.vocab_size,:]
+        index_to_word_map = dict([(x, index_to_word_map[x]) for x in range(0,opt.vocab_size)])
+        word_to_index_map = dict([(index_to_word_map[index], index) for index in index_to_word_map])
+
         print("Building Train GloVeToCropus:")
         train_corpus_glove = gloveCorpus(train_corpus, glove, word_to_index_map)   
         print("Building Valid GloVeToCropus:")
@@ -56,6 +65,11 @@ def buildFeatures(data_dir = opt.main_data_dir, min_val = opt.min_value, file_ty
     elif file_type == "sparse":
         subdir = "Sparse"
         vocabulary, index_to_word_map, word_to_index_map = load_sparse(data_dir, subdir)
+
+        vocabulary = vocabulary[0:opt.vocab_size]
+        index_to_word_map = dict([(x, index_to_word_map[x]) for x in range(0,opt.vocab_size)])
+        word_to_index_map = dict([(index_to_word_map[index], index) for index in index_to_word_map])
+
         print("Building Train Sparse Matrix:")
         train_sparse_mat = sparseCorpus(train_corpus, vocabulary, word_to_index_map) 
         print("Building Valid Sparse Matrix:")
@@ -129,18 +143,32 @@ def printTargetBalance(topics_, train_targets_):
         percent = round(ones_train/total_train,2)*100
         print("Topic: {}; Percet Ones: {}%".format(topic, percent))
 
+def VocabSizeChecker(vocab_size=opt.vocab_size , min_val=50, max_val=10000):
 
+    if vocab_size > max_val: 
+        raise ValueError("Vocabulary Size cannot exceed {}".format(max_val))
+    if opt.vocab_size < min_val: 
+        raise ValueError("Vocabulary Size cannot be lower than {}".format(min_val))  
     
 if __name__ == '__main__':
-    
+
+    VocabSizeChecker()
     train_features, valid_features = buildFeatures()
     topics, train_target, valid_target = buildTargets()
     train_features, valid_features, train_target, valid_target = dropMissing(train_features, valid_features, train_target, valid_target)
     printTargetBalance(topics, train_target)
-    
+
+    if opt.denoise == "None": 
+        print("No Denoising method selected")
+    elif opt.denoise == "ChetEtAl":
+        print("Denoising Train using Chen et.Al 2011")
+        train_features, train_noise = ALM_RoMaCo(train_features)
+        print("Denoising valid using Chen et.Al 2011")
+        valid_features, valid_noise = ALM_RoMaCo(valid_features)
+
     print("\n")
-    print("Running SVMs; Type = {}; Regularization = {}; Kernel = {}".format(opt.file_type, opt.SVM_hyperparam, opt.SVM_kernel))
-    
+    print("Running SVMs; Type = {}; Regularization = {}; Kernel = {}; Vobab Size = {}; Denoising = {}".format(opt.file_type, opt.SVM_hyperparam, opt.SVM_kernel, opt.vocab_size, opt.denoise))
+
     for x in range(0, len(topics)): 
 
         my_svm = svm.SVC(kernel=opt.SVM_kernel, C=opt.SVM_hyperparam, probability=True)
@@ -158,6 +186,5 @@ if __name__ == '__main__':
         print("Topic {} - Acc on validation: {}".format(topics[x], acc_valid))
         print("Topic {} - AUC on train: {}".format(topics[x], auc_train))
         print("Topic {} - AUC on validation: {}".format(topics[x], auc_valid))
-
 
         
