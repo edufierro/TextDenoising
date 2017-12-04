@@ -120,31 +120,25 @@ if __name__ == '__main__':
     printTargetBalance(topics, train_target)
 
     #### Sample differente uks to initialize ALM_RoMaCo Algorithm.  
+    uk_to_test = [0.0001, 0.00304841783786, 0.01, 0.1, 0.5, 1, 5, 10, 15, 20, 25, 50, 100, 500]
+    
+    for u0 in uk_to_test:
 
-    print("Denoising Train using Chen et.Al 2011")
-    train_features, train_noise = ALM_RoMaCo(train_features, auto_init_u=False, u_init=None)
-    print("Denoising valid using Chen et.Al 2011")
-    valid_features, valid_noise = ALM_RoMaCo(valid_features, auto_init_u=False, u_init=None)
+        print("Denoising Train using Chen et.Al 2011 - u0 = {}".format(u0))
+        train_features_SVM, train_noise_SVM = ALM_RoMaCo(train_features, u_init=u0)
+        print("Denoising valid using Chen et.Al 2011 - u0 = {}".format(u0))
+        valid_features_SVM, valid_noise_SVM = ALM_RoMaCo(valid_features, u_init=u0)
 
-    print("\n")
-    print("Running SVMs; Type = {}; Regularization = {}; Kernel = {}; Vobab Size = {}; Denoising = ChetEtAl".format(opt.file_type, opt.SVM_hyperparam, opt.SVM_kernel, opt.vocab_size))
+        for x in range(0, len(topics)): 
 
-    for x in range(0, len(topics)): 
+            my_svm = svm.SVC(kernel=opt.SVM_kernel, C=opt.SVM_hyperparam, probability=True)            
+            my_svm.fit(train_features_SVM, train_target[x])         
+            y_proba_valid =  my_svm.predict_proba(valid_features_SVM)
+            auc_valid = roc_auc_score(valid_target[x], y_proba_valid[:,1])
+            print("Topic {} - AUC on validation: {} - uo: {} - Features: L".format(topics[x], auc_valid, u0))
 
-        my_svm = svm.SVC(kernel=opt.SVM_kernel, C=opt.SVM_hyperparam, probability=True)
-        
-        my_svm.fit(train_features, train_target[x])         
-        acc_train = my_svm.score(train_features, train_target[x])
-        acc_valid = my_svm.score(valid_features, valid_target[x])
-
-        y_proba_train =  my_svm.predict_proba(train_features)
-        y_proba_valid =  my_svm.predict_proba(valid_features)
-        auc_train = roc_auc_score(train_target[x], y_proba_train[:,1])
-        auc_valid = roc_auc_score(valid_target[x], y_proba_valid[:,1])
-
-        #print("Topic {} - Acc on train: {}".format(topics[x], acc_train))
-        #print("Topic {} - Acc on validation: {}".format(topics[x], acc_valid))
-        #print("Topic {} - AUC on train: {}".format(topics[x], auc_train))
-        # Just comparing now AUC on validation: 
-        print("Topic {} - AUC on validation: {}".format(topics[x], auc_valid))
-
+            my_svm = svm.SVC(kernel=opt.SVM_kernel, C=opt.SVM_hyperparam, probability=True)            
+            my_svm.fit(train_noise_SVM, train_target[x])         
+            y_proba_valid =  my_svm.predict_proba(valid_noise_SVM)
+            auc_valid = roc_auc_score(valid_target[x], y_proba_valid[:,1])
+            print("Topic {} - AUC on validation: {} - uo: {} - Features: C".format(topics[x], auc_valid, u0))
