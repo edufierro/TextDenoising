@@ -12,31 +12,20 @@ from BuildSparseRep import load_sparse, sparseCorpus
 from DenoiseChenEtAl import ALM_RoMaCo
 
 
-"""
-Created on Tue Nov 21 17:01:27 2017
-
-@author: eduardofierro
-
-Run SVMs. 
-
-"""
-
 parser = argparse.ArgumentParser()
 parser.add_argument('--main_data_dir', type=str, default='/Users/eduardofierro/Google Drive/TercerSemetre/Optimization/Project/Data/', help='Main data dir')
 parser.add_argument('--min_value', type=float, default=100, help='Min sentence length to consider')
-parser.add_argument('--file_type', type=str, default="gloves", help='gloves := GloVe; sparse=Sparse (normal)')
 parser.add_argument('--list_topics', type=str, default="['Educación', 'Campo', 'Sistema Financiero', 'Electoral', 'Derechos Humanos', 'Medio Ambiente', 'Laboral']", help='A list of topics to chose from, as string')
 parser.add_argument('--SVM_hyperparam', type=float, default=0.001, help='SVM hyperparam (for all topics)')
 parser.add_argument('--SVM_kernel', type=str, default="linear", help="SVM kernel. Default = linear; Must be ‘linear’, ‘poly’, ‘rbf’, ‘sigmoid’, ‘precomputed’ or a callable ")
 parser.add_argument('--vocab_size', type=int, default=10000, help="Vocabulary size to use for classification task")
-parser.add_argument('--denoise', type=str, default='None', help="Denoising techique to use - Accepted: 'None'; 'ChetEtAl'")
 opt = parser.parse_args()
 print(opt)
 
 def listParser(list_string):     
     return ast.literal_eval(list_string)
 
-def buildFeatures(data_dir = opt.main_data_dir, min_val = opt.min_value, file_type = opt.file_type):
+def buildFeatures(data_dir = opt.main_data_dir, min_val = opt.min_value):
     
     print("Loading Train corpus:")
     train_files = np.loadtxt(data_dir + "/train.txt", dtype="str")
@@ -45,40 +34,21 @@ def buildFeatures(data_dir = opt.main_data_dir, min_val = opt.min_value, file_ty
     print("Loading Valid corpus:")
     valid_files = np.loadtxt(data_dir + "/valid.txt", dtype="str")
     valid_corpus = loadCorpus(valid_files, data_dir, min_val)   
+
+    subdir = "Sparse"
+    vocabulary, index_to_word_map, word_to_index_map = load_sparse(data_dir, subdir)
+
+    vocabulary = vocabulary[0:opt.vocab_size]
+    index_to_word_map = dict([(x, index_to_word_map[x]) for x in range(0,opt.vocab_size)])
+    word_to_index_map = dict([(index_to_word_map[index], index) for index in index_to_word_map])
+
+    print("Building Train Sparse Matrix:")
+    train_sparse_mat = sparseCorpus(train_corpus, vocabulary, word_to_index_map) 
+    print("Building Valid Sparse Matrix:")
+    valid_sparse_mat = sparseCorpus(valid_corpus, vocabulary, word_to_index_map) 
         
-    if file_type == "gloves":
-
-        subdir = "GloVe"
-        glove, index_to_word_map, word_to_index_map = load_gloves(data_dir, subdir)
-        
-        glove = glove[0:opt.vocab_size,:]
-        index_to_word_map = dict([(x, index_to_word_map[x]) for x in range(0,opt.vocab_size)])
-        word_to_index_map = dict([(index_to_word_map[index], index) for index in index_to_word_map])
-
-        print("Building Train GloVeToCropus:")
-        train_corpus_glove = gloveCorpus(train_corpus, glove, word_to_index_map)   
-        print("Building Valid GloVeToCropus:")
-        valid_corpus_glove = gloveCorpus(valid_corpus, glove, word_to_index_map) 
-
-        return train_corpus_glove, valid_corpus_glove  
-
-    elif file_type == "sparse":
-        subdir = "Sparse"
-        vocabulary, index_to_word_map, word_to_index_map = load_sparse(data_dir, subdir)
-
-        vocabulary = vocabulary[0:opt.vocab_size]
-        index_to_word_map = dict([(x, index_to_word_map[x]) for x in range(0,opt.vocab_size)])
-        word_to_index_map = dict([(index_to_word_map[index], index) for index in index_to_word_map])
-
-        print("Building Train Sparse Matrix:")
-        train_sparse_mat = sparseCorpus(train_corpus, vocabulary, word_to_index_map) 
-        print("Building Valid Sparse Matrix:")
-        valid_sparse_mat = sparseCorpus(valid_corpus, vocabulary, word_to_index_map) 
-        
-        return train_sparse_mat, valid_sparse_mat  
+    return train_sparse_mat, valid_sparse_mat  
     
-    else:
-        raise ValueError("Type not recognized")
     
 def buildTargets(word_to_use = opt.list_topics, data_dir = opt.main_data_dir):
     
@@ -103,20 +73,11 @@ def buildTargets(word_to_use = opt.list_topics, data_dir = opt.main_data_dir):
     # This is a list of topics and 2 lists of numpy arrays. 
     return topics, train_targets, valid_targets
     
-def getNonMissingIndexes(train_features, valid_features, file_type = opt.file_type): 
+def getNonMissingIndexes(train_features, valid_features): 
     
-    if file_type == "gloves":
-        # Here, is a row of NAs
-        train_nonmissing_indexes = [x for x in range(0, train_features.shape[0]) if np.isnan(train_features[x][0])==False]
-        valid_nonmissing_indexes = [x for x in range(0, valid_features.shape[0]) if np.isnan(valid_features[x][0])==False]
 
-    elif file_type == "sparse":
-        # Here, is a row of zeros (no words)
-        train_nonmissing_indexes = [x for x in range(0, train_features.shape[0]) if np.sum(train_features[x])>0]
-        valid_nonmissing_indexes = [x for x in range(0, valid_features.shape[0]) if np.sum(valid_features[x])>0]    
-
-    else:
-        raise ValueError("Type not recognized")    
+    train_nonmissing_indexes = [x for x in range(0, train_features.shape[0]) if np.sum(train_features[x])>0]
+    valid_nonmissing_indexes = [x for x in range(0, valid_features.shape[0]) if np.sum(valid_features[x])>0]    
     
     return(train_nonmissing_indexes, valid_nonmissing_indexes)  
     
@@ -158,16 +119,15 @@ if __name__ == '__main__':
     train_features, valid_features, train_target, valid_target = dropMissing(train_features, valid_features, train_target, valid_target)
     printTargetBalance(topics, train_target)
 
-    if opt.denoise == "None": 
-        print("No Denoising method selected")
-    elif opt.denoise == "ChetEtAl":
-        print("Denoising Train using Chen et.Al 2011")
-        train_features, train_noise = ALM_RoMaCo(train_features)
-        print("Denoising valid using Chen et.Al 2011")
-        valid_features, valid_noise = ALM_RoMaCo(valid_features)
+    #### Sample differente uks to initialize ALM_RoMaCo Algorithm.  
+
+    print("Denoising Train using Chen et.Al 2011")
+    train_features, train_noise = ALM_RoMaCo(train_features, auto_init_u=False, u_init=None)
+    print("Denoising valid using Chen et.Al 2011")
+    valid_features, valid_noise = ALM_RoMaCo(valid_features, auto_init_u=False, u_init=None)
 
     print("\n")
-    print("Running SVMs; Type = {}; Regularization = {}; Kernel = {}; Vobab Size = {}; Denoising = {}".format(opt.file_type, opt.SVM_hyperparam, opt.SVM_kernel, opt.vocab_size, opt.denoise))
+    print("Running SVMs; Type = {}; Regularization = {}; Kernel = {}; Vobab Size = {}; Denoising = ChetEtAl".format(opt.file_type, opt.SVM_hyperparam, opt.SVM_kernel, opt.vocab_size))
 
     for x in range(0, len(topics)): 
 
@@ -182,9 +142,9 @@ if __name__ == '__main__':
         auc_train = roc_auc_score(train_target[x], y_proba_train[:,1])
         auc_valid = roc_auc_score(valid_target[x], y_proba_valid[:,1])
 
-        print("Topic {} - Acc on train: {}".format(topics[x], acc_train))
-        print("Topic {} - Acc on validation: {}".format(topics[x], acc_valid))
-        print("Topic {} - AUC on train: {}".format(topics[x], auc_train))
+        #print("Topic {} - Acc on train: {}".format(topics[x], acc_train))
+        #print("Topic {} - Acc on validation: {}".format(topics[x], acc_valid))
+        #print("Topic {} - AUC on train: {}".format(topics[x], auc_train))
+        # Just comparing now AUC on validation: 
         print("Topic {} - AUC on validation: {}".format(topics[x], auc_valid))
 
-        

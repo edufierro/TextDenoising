@@ -82,7 +82,7 @@ def convergence_criterion(M, Ek, Lk, Ck):
     
     return condition
 
-def ALM_RoMaCo(M, lambda_fun = 0.5, alpha=1.1, tol=50):
+def ALM_RoMaCo(M, lambda_fun = 0.1, alpha=1.1, tol=50):
     
     # First alpha = 1.1 is the same as paper. 
     # Lambda is not specified, but assumed 0<lambda<1
