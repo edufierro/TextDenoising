@@ -5,6 +5,7 @@ import numpy as np
 from sklearn import svm
 from sklearn.metrics import roc_auc_score
 import ast
+import pickle
 from CorpusLoder import loadCorpus
 from GetTargets import readTable, getTemaFromList, genTarget
 from BuildDenseRep import load_gloves, gloveCorpus
@@ -120,9 +121,10 @@ if __name__ == '__main__':
     printTargetBalance(topics, train_target)
 
     #### Sample differente uks to initialize ALM_RoMaCo Algorithm.  
-    # uk_to_test = [0.0001, 0.00304841783786, 0.01, 0.1, 0.5, 1, 5, 10, 15, 20, 25, 50, 100, 500, 1000, 2000, 3000]
-    uk_to_test = [5, 10, 15, 20, 25, 50, 100, 500, 1000, 2000, 3000]
+    uk_to_test = [0.0001, 0.00304841783786, 0.01, 0.1, 0.5, 1, 5, 10, 15, 20, 25, 50, 100, 500, 1000, 2000, 3000]
     
+    results = []
+
     for u0 in uk_to_test:
         
         print("---")
@@ -139,3 +141,26 @@ if __name__ == '__main__':
             y_proba_valid =  my_svm.predict_proba(valid_features_SVM)
             auc_valid = roc_auc_score(valid_target[x], y_proba_valid[:,1])
             print("Topic {} - AUC on validation: {} - uo: {} - Features: L".format(topics[x], auc_valid, u0))
+            results.append((topics[x], u0, auc_valid))
+    
+    print("---")
+    print("\n")
+    print("Baseline")
+    print("\n")
+
+    train_features_SVM = train_features
+    valid_features_SVM = valid_features
+
+    for x in range(0, len(topics)): 
+
+        my_svm = svm.SVC(kernel=opt.SVM_kernel, C=opt.SVM_hyperparam, probability=True)            
+        my_svm.fit(train_features_SVM, train_target[x])         
+        y_proba_valid =  my_svm.predict_proba(valid_features_SVM)
+        auc_valid = roc_auc_score(valid_target[x], y_proba_valid[:,1])
+        print("Topic {} - AUC on validation: {} - uo: {} - Features: L".format(topics[x], auc_valid, u0))
+        results.append((topics[x], "Baseline", auc_valid))
+    
+    print("Done! Saving Results as pickle in Results folder")
+    pickle.dump(results, open("{}/Results/SVM_HyperParam_ChenEtAl_{}".format(opt.main_data_dir, opt.vocab_size), "wb" ) )   
+
+
