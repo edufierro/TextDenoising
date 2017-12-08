@@ -195,5 +195,5 @@ if __name__ == '__main__':
             results_list.append((topics[x], auc_valid))
 
     if opt.save_resutls: 
-        pickle.dump(results, open("{}/Results/RunSVM_vocab.{}_denoise.{}_file_type.{}".format(opt.main_data_dir, opt.vocab_size, opt.denoise, opt.file_type), "wb" ) ) 
+        pickle.dump(results_list, open("{}/Results/RunSVM_vocab.{}_denoise.{}_file_type.{}".format(opt.main_data_dir, opt.vocab_size, opt.denoise, opt.file_type), "wb" ) ) 
         
