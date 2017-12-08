@@ -10,7 +10,7 @@ from GetTargets import readTable, getTemaFromList, genTarget
 from BuildDenseRep import load_gloves, gloveCorpus
 from BuildSparseRep import load_sparse, sparseCorpus
 from DenoiseChenEtAl import ALM_RoMaCo
-
+import pickle
 
 """
 Created on Tue Nov 21 17:01:27 2017
@@ -30,6 +30,7 @@ parser.add_argument('--SVM_hyperparam', type=float, default=0.001, help='SVM hyp
 parser.add_argument('--SVM_kernel', type=str, default="linear", help="SVM kernel. Default = linear; Must be ‘linear’, ‘poly’, ‘rbf’, ‘sigmoid’, ‘precomputed’ or a callable ")
 parser.add_argument('--vocab_size', type=int, default=10000, help="Vocabulary size to use for classification task")
 parser.add_argument('--denoise', type=str, default='None', help="Denoising techique to use - Accepted: 'None'; 'ChetEtAl'")
+parser.add_argument('--save_resutls', action='store_true', help="Save Pickle with results? Default False. Assumes 'Results' subdir in main_data_dir")
 opt = parser.parse_args()
 print(opt)
 
@@ -168,7 +169,10 @@ if __name__ == '__main__':
 
     print("\n")
     print("Running SVMs; Type = {}; Regularization = {}; Kernel = {}; Vobab Size = {}; Denoising = {}".format(opt.file_type, opt.SVM_hyperparam, opt.SVM_kernel, opt.vocab_size, opt.denoise))
-
+    
+    if opt.save_resutls: 
+        results_list = []
+    
     for x in range(0, len(topics)): 
 
         my_svm = svm.SVC(kernel=opt.SVM_kernel, C=opt.SVM_hyperparam, probability=True)
@@ -187,4 +191,9 @@ if __name__ == '__main__':
         print("Topic {} - AUC on train: {}".format(topics[x], auc_train))
         print("Topic {} - AUC on validation: {}".format(topics[x], auc_valid))
 
+        if opt.save_resutls: 
+            results_list.append((topics[x], auc_valid))
+
+    if opt.save_resutls: 
+        pickle.dump(results, open("{}/Results/RunSVM_vocab.{}_denoise.{}_file_type.{}".format(opt.main_data_dir, opt.vocab_size, opt.denoise, opt.file_type), "wb" ) ) 
         
