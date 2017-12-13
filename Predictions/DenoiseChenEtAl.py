@@ -82,7 +82,7 @@ def convergence_criterion(M, Ek, Lk, Ck):
     
     return condition
 
-def ALM_RoMaCo(M, lambda_fun = 0.5, alpha=1.1, tol=50):
+def ALM_RoMaCo(M, lambda_fun = 0.1, alpha=1.1, tol=50, u_init=None):
     
     # First alpha = 1.1 is the same as paper. 
     # Lambda is not specified, but assumed 0<lambda<1
@@ -95,9 +95,15 @@ def ALM_RoMaCo(M, lambda_fun = 0.5, alpha=1.1, tol=50):
     k = 0
     convergence = False
     converged = True
+    
+    if u_init:
+        # Pass an initialization as hyperparameter:
+        uk = u_init
+        
+    else: 
+        # Initialize U --> Same as paper, but with normalized columns
+        uk = matrix_pq_norm(normalize(M), p = 1, q = 2)**(-1)
 
-    # Initialize U --> Same as paper, but with normalized columns
-    uk = matrix_pq_norm(normalize(M), p = 1, q = 2)**(-1)
     obs_indexes, obs_indexes_complement = getObserved(M)
     
     while convergence is False:
