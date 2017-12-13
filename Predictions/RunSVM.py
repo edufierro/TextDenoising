@@ -147,7 +147,7 @@ def VocabSizeChecker(vocab_size=opt.vocab_size , min_val=50, max_val=10000):
 
     if vocab_size > max_val: 
         raise ValueError("Vocabulary Size cannot exceed {}".format(max_val))
-    if opt.vocab_size < min_val: 
+    if vocab_size < min_val: 
         raise ValueError("Vocabulary Size cannot be lower than {}".format(min_val))  
     
 if __name__ == '__main__':
