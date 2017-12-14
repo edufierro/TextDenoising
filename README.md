@@ -82,7 +82,7 @@ import pickle
 ```
 ## Baseline predictions and Sparse representation. 
 
-To build the baselines predictions and Sparse representations, the code ``Predictions/SVM_HyperParam_ChenEtAl.py``automatically runs all the possible SVMs with different initializations of $u_0$ for denoising the sparse matrix, hard coded in line 124 of the code. 
+To build the baselines predictions and Sparse representations, the code ``Predictions/SVM_HyperParam_ChenEtAl.py``automatically runs all the possible SVMs with different initializations of $u_0$ for denoising the sparse matrix, hard coded in line 124 of the code, as well as the baseline for the specified vocabulary size. Vocabulary size is restriced for a selection between 50 and 10,000. 
 
 This code takes as parameters the following: 
 ```python
