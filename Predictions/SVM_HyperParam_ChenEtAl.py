@@ -15,7 +15,7 @@ from DenoiseChenEtAl import ALM_RoMaCo
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--main_data_dir', type=str, default='/Users/eduardofierro/Google Drive/TercerSemetre/Optimization/Project/Data/', help='Main data dir')
-parser.add_argument('--min_value', type=float, default=100, help='Min sentence length to consider')
+parser.add_argument('--min_value', type=float, default=100, help='Min sentence length to consider (if >99, the command is overwritten')
 parser.add_argument('--list_topics', type=str, default="['Educación', 'Campo', 'Sistema Financiero', 'Electoral', 'Derechos Humanos', 'Medio Ambiente', 'Laboral']", help='A list of topics to chose from, as string')
 parser.add_argument('--SVM_hyperparam', type=float, default=0.001, help='SVM hyperparam (for all topics)')
 parser.add_argument('--SVM_kernel', type=str, default="linear", help="SVM kernel. Default = linear; Must be ‘linear’, ‘poly’, ‘rbf’, ‘sigmoid’, ‘precomputed’ or a callable ")
