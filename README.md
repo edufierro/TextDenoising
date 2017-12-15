@@ -97,4 +97,35 @@ It also calls, ```CorpusLoder.py```, ```GetTargets.py```, ```BuildDenseRep.py```
 
 The code was run in NYU prince, with 4 cpus and 80GB of memory. Once on prince, and sbatch job can be submitted using ```SVM_HyperParam_ChenEtAl-runner.sh```
 
+## Building dense features
+
+To build the dense fuatures you have to tun the folowing code in the save_dense_data.ipynb file:
+```python
+from Predictions.RunSVM_copy4matrix import *
+from sklearn.preprocessing import scale
+from sklearn.decomposition import PCA
+from scipy.cluster.vq import whiten
+
+import matplotlib.pyplot as plt
+
+from robust.pcp import pcp
+from robust.rpca import *
+
+VocabSizeChecker()
+data_dir = 'Data'
+min_val = 100
+file_type = 'gloves'
+vocab_size = 10000
+
+train_features, valid_features = buildFeatures()
+
+topics, train_target, valid_target = buildTargets()
+train_features, valid_features, train_target, valid_target = dropMissing(train_features, valid_features, train_target, valid_target)
+printTargetBalance(topics, train_target)
+```
+
+
+## Denoising dense representation
+
+
 
