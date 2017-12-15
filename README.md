@@ -124,8 +124,32 @@ train_features, valid_features, train_target, valid_target = dropMissing(train_f
 printTargetBalance(topics, train_target)
 ```
 
-
 ## Denoising dense representation
+
+To denoise the dense matrix and generate the plots all the code is located in the file: matrix_ denoising.ipynb 
+
+Packages & funtions:
+
+```python
+from Predictions.RunSVM_copy4matrix import *
+from sklearn.preprocessing import scale
+from sklearn.decomposition import PCA
+from scipy.cluster.vq import whiten
+import numpy as np
+import matplotlib.pyplot as plt
+
+from robust.pcp import pcp
+from robust.rpca import *
+from robust.r_pca import *
+from robust.rpcaADMM import *
+```
+Relevant code to obtain the Robust PCA matrix separation:
+```python
+out_ = rpcaADMM(train_features)
+out_.keys()
+L_4 = out_['X2_admm']
+S_4 = out_['X1_admm']
+```
 
 
 
